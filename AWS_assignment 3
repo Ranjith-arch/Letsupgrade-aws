@@ -1,0 +1,157 @@
+// Question 1
+
+Private bucket with versioning enabled
+module "s3_bucket" {
+  source = "terraform-aws-modules/s3-bucket/aws"
+
+  bucket = "my-s3-bucket"
+  acl    = "private"
+
+  versioning = {
+    enabled = true
+  }
+
+}
+Bucket with ELB access log delivery policy attached
+module "s3_bucket_for_logs" {
+  source = "terraform-aws-modules/s3-bucket/aws"
+
+  bucket = "my-s3-bucket-for-logs"
+  acl    = "log-delivery-write"
+
+  # Allow deletion of non-empty bucket
+  force_destroy = true
+
+  attach_elb_log_delivery_policy = true
+}
+Conditional creation
+Sometimes you need to have a way to create S3 resources conditionally but Terraform does not allow to use count inside module block, so the solution is to specify argument create_bucket.
+
+# This S3 bucket will not be created
+module "s3_bucket" {
+  source = "terraform-aws-modules/s3-bucket/aws"
+
+  create_bucket = false
+  # ... omitted
+}
+
+
+//Question 4
+
+package types
+
+/*
+NOTE: To unmarshal Go []string to an AWS 'L' type (list of AttributeValues),
+you must use the []interface{} type.  The []string type will get unmarshaled
+into an AWS 'SS' type (string-set of AttributeValues). The 'L' type is needed
+for DynamoDB JSON expressions, like...
+   "remove info.actors[0]"
+Here is the AWS SDK source-code link that describes the Unmarshal types...
+   
+*/
+type MovieInfo struct {
+	Directors       []interface{} `json:"directors" dynamodbav:"directors"`
+	ReleaseDate     string        `json:"release_date" dynamodbav:"release_date"`
+	Rating          float64       `json:"rating" dynamodbav:"rating"`
+	Genres          []interface{} `json:"genres" dynamodbav:"genres"`
+	ImageURL        string        `json:"image_url" dynamodbav:"image_url"`
+	Plot            string        `json:"plot" dynamodbav:"plot"`
+	Rank            int           `json:"rank" dynamodbav:"rank"`
+	RunningTimeSecs int           `json:"running_time_secs" dynamodbav:"running_time_secs"`
+	Actors          []interface{} `json:"actors" dynamodbav:"actors"`
+}
+
+type Movie struct {
+	Year  int       `json:"year" dynamodbav:"year"`
+	Title string    `json:"title" dynamodbav:"title"`
+	Info  MovieInfo `json:"info" dynamodbav:"info"`
+}
+
+//Question 3
+
+/* Space out content a bit */
+body {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+/* Everything but the jumbotron gets side spacing for mobile first views */
+.header,
+.marketing,
+.footer {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+/* Custom page header */
+.header {
+  border-bottom: 1px solid #e5e5e5;
+}
+/* Make the masthead heading the same height as the navigation */
+.header h3 {
+  margin-top: 0;
+  margin-bottom: 0;
+  line-height: 40px;
+  padding-bottom: 19px;
+}
+
+/* Custom page footer */
+.footer {
+  padding-top: 19px;
+  color: #777;
+  border-top: 1px solid #e5e5e5;
+}
+
+/* Customize container */
+@media (min-width: 768px) {
+  .container {
+    max-width: 730px;
+  }
+}
+.container-narrow > hr {
+  margin: 30px 0;
+}
+
+/* Main marketing message and sign up button */
+.jumbotron {
+  text-align: center;
+  border-bottom: 1px solid #e5e5e5;
+}
+.jumbotron .btn {
+  font-size: 21px;
+  padding: 14px 24px;
+}
+
+/* Supporting marketing content */
+.marketing {
+  margin: 40px 0;
+}
+.marketing p + h4 {
+  margin-top: 28px;
+}
+
+/* Responsive: Portrait tablets and up */
+@media screen and (min-width: 768px) {
+  /* Remove the padding we set earlier */
+  .header,
+  .marketing,
+  .footer {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  /* Space out the masthead */
+  .header {
+    margin-bottom: 30px;
+  }
+  /* Remove the bottom border on the jumbotron for visual effect */
+  .jumbotron {
+    border-bottom: 0;
+  }
+}
+
+
+
+
+
+
+
